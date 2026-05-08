@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
   try {
     console.log(`[WhatsApp Test] Triggering test for ${phone}`);
-    const result = await sendWhatsAppNotification(phone, '🔔 *Smartstack Test*: If you can see this, your WhatsApp automation is working perfectly!');
+    const result = await sendWhatsAppNotification(phone, 'Your Smartstack appointment is coming up on May 8 at 6PM. Reply YES to confirm.');
     
     return NextResponse.json({ 
       message: 'Test triggered! Check your WhatsApp and Vercel logs.',
