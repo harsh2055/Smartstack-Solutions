@@ -15,13 +15,19 @@ export async function POST(req: NextRequest) {
     if (contentType.includes('application/json')) {
       const body = await req.json();
       const { to, message } = body;
+      console.log(`[WhatsApp Debug] Internal Trigger - To: ${to}, Message: ${message.substring(0, 20)}...`);
 
       if (!client) {
-        console.warn('[WhatsApp Webhook] Twilio client not initialized. Check SID/Token.');
+        console.error('[WhatsApp Error] Twilio SID or Token missing in environment variables.');
         return NextResponse.json({ error: 'Twilio not configured' }, { status: 500 });
       }
 
-      console.log(`[WhatsApp Webhook] Sending outgoing message to ${to}`);
+      if (!to || !message) {
+        console.error('[WhatsApp Error] Missing recipient or message body.');
+        return NextResponse.json({ error: 'Missing data' }, { status: 400 });
+      }
+
+      console.log(`[WhatsApp Debug] Attempting to send via Twilio: ${whatsappNumber} -> ${to}`);
 
       // Ensure the number is in WhatsApp format
       const formattedTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to.startsWith('+') ? to : '+' + to}`;
