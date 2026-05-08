@@ -1,0 +1,394 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma_new"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth Models (unchanged) ────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(CLIENT)
+  accounts      Account[]
+  sessions      Session[]
+  client        Client?
+  phone         String?
+  jobTitle      String?
+  company       String?
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Content Models (unchanged) ─────────────────────────────────────────────
+
+model PricingPlan {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  description  String?
+  features     String[]
+  isPopular    Boolean  @default(false)
+  ctaText      String   @default("Get Started")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  priceMonthly String
+  priceYearly  String
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String   @unique
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  icon        String?
+  content     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  features    String[]
+  isPopular   Boolean  @default(false)
+  priceRange  String?
+}
+
+model CaseStudy {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  image       String?
+  client      String?
+  metrics     Json?
+  content     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  liveUrl     String?
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  author    String
+  role      String?
+  content   String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Developer {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  about     String
+  image     String?
+  portfolio String?
+  resume    String?
+  skills    String[]
+  projects  Json?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── CRM Models (new) ────────────────────────────────────────────────────────
+
+model Client {
+  id            String          @id @default(cuid())
+  userId        String?         @unique
+  user          User?           @relation(fields: [userId], references: [id])
+  companyName   String
+  contactName   String
+  email         String          @unique
+  phone         String?
+  website       String?
+  industry      String?
+  address       String?
+  logoUrl       String?
+  isActive      Boolean         @default(true)
+  contractSigned Boolean        @default(false)
+  notes         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  projects      ClientProject[]
+  invoices      Invoice[]
+  leads         Lead[]
+  tickets       SupportTicket[]
+  files         FileUpload[]
+  payments      Payment[]
+  activityLogs  ActivityLog[]
+  notifications Notification[]
+}
+
+model ClientProject {
+  id               String        @id @default(cuid())
+  clientId         String
+  client           Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  status           ProjectStatus @default(LEAD)
+  progress         Int           @default(0)
+  startDate        DateTime?
+  deadline         DateTime?
+  completedAt      DateTime?
+  demoUrl          String?
+  liveUrl          String?
+  githubUrl        String?
+  totalValue       Float         @default(0)
+  notes            String?
+  assignedTo       String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  activityLogs     ActivityLog[]
+  invoices         Invoice[]
+  files            FileUpload[]
+  milestones       Milestone[]
+}
+
+model Milestone {
+  id          String        @id @default(cuid())
+  projectId   String
+  project     ClientProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  isCompleted Boolean       @default(false)
+  order       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  clientId     String?
+  client       Client?    @relation(fields: [clientId], references: [id])
+  name         String
+  email        String
+  phone        String?
+  company      String?
+  service      String?
+  budget       String?
+  value        Float?
+  message      String?
+  source       String?
+  status       LeadStatus @default(NEW)
+  assignedTo   String?
+  notes        String?
+  followUpDate DateTime?
+  convertedAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     ClientProject? @relation(fields: [projectId], references: [id])
+  invoiceNo   String        @unique
+  title       String
+  items       Json
+  subtotal    Float
+  tax         Float         @default(0)
+  total       Float
+  status      InvoiceStatus @default(PENDING)
+  dueDate     DateTime?
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  payments    Payment[]
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  invoiceId   String?
+  invoice     Invoice?      @relation(fields: [invoiceId], references: [id])
+  amount      Float
+  method      String?
+  reference   String?
+  status      PaymentStatus @default(PENDING)
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model TeamMember {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  role       String
+  department String?
+  avatar     String?
+  skills     String[]
+  isActive   Boolean  @default(true)
+  joinedAt   DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SupportTicket {
+  id          String       @id @default(cuid())
+  clientId    String
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  subject     String
+  description String
+  status      TicketStatus @default(OPEN)
+  priority    String       @default("MEDIUM")
+  assignedTo  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model FileUpload {
+  id        String         @id @default(cuid())
+  clientId  String?
+  client    Client?        @relation(fields: [clientId], references: [id])
+  projectId String?
+  project   ClientProject? @relation(fields: [projectId], references: [id])
+  name      String
+  url       String
+  size      Int?
+  type      String?
+  folder    String?
+  uploadedBy String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model ActivityLog {
+  id        String         @id @default(cuid())
+  clientId  String?
+  client    Client?        @relation(fields: [clientId], references: [id])
+  projectId String?
+  project   ClientProject? @relation(fields: [projectId], references: [id])
+  type      String
+  title     String
+  message   String?
+  metadata  Json?
+  createdBy String?
+  createdAt DateTime       @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+  CLIENT
+}
+
+enum ProjectStatus {
+  LEAD
+  DISCUSSION
+  DEMO
+  DEVELOPMENT
+  TESTING
+  REVISION
+  LIVE
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  FOLLOW_UP
+  PROPOSAL_SENT
+  CLOSED
+  LOST
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
