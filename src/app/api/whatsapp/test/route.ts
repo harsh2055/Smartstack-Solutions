@@ -17,10 +17,6 @@ export async function GET(req: NextRequest) {
     
     return NextResponse.json({ 
       message: 'Test triggered! Check your WhatsApp and Vercel logs.',
-      debug: {
-        from: (process.env.TWILIO_WHATSAPP_NUMBER || '').replace(/.(?=.{4})/g, '*'),
-        to: phone.replace(/.(?=.{4})/g, '*')
-      },
       result 
     });
   } catch (error: any) {
