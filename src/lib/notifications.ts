@@ -24,9 +24,13 @@ export async function sendWhatsAppNotification(to: string, message: string) {
       });
       
       return { success: true, sid: response.sid, method: 'twilio' };
-    } catch (error) {
-      console.error('[WhatsApp] Twilio Direct Error:', error);
-      // Fallback to webhook if configured
+    } catch (error: any) {
+      console.error('[WhatsApp Error] Twilio Direct Failure:', {
+        message: error.message,
+        code: error.code,
+        moreInfo: error.moreInfo
+      });
+      return { success: false, error: error.message, code: error.code, method: 'twilio' };
     }
   }
 
