@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const clientId = searchParams.get('clientId');
-  const status = searchParams.get('status') as ProjectStatus | null;
+  const status = searchParams.get('status') as any;
 
   const projects = await db.clientProject.findMany({
     where: {

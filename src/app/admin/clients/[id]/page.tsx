@@ -202,8 +202,8 @@ export default function ClientDetailPage() {
                 <a href={`mailto:${client.email as string}`} className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
                   <Mail size={12} />{client.email as string}
                 </a>
-                {client.phone && <a href={`tel:${client.phone as string}`} className="flex items-center gap-1.5 text-xs text-slate-500"><Phone size={12} />{client.phone as string}</a>}
-                {client.website && <a href={client.website as string} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600"><Globe size={12} />{client.website as string}</a>}
+                {!!client.phone && <a href={`tel:${client.phone as string}`} className="flex items-center gap-1.5 text-xs text-slate-500"><Phone size={12} />{client.phone as string}</a>}
+                {!!client.website && <a href={client.website as string} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600"><Globe size={12} />{client.website as string}</a>}
               </div>
             </div>
           </div>
@@ -284,7 +284,7 @@ export default function ClientDetailPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <h4 className="font-bold text-slate-900">{project.title as string}</h4>
-                      {project.assignedTo && <p className="text-xs text-slate-400 mt-0.5">Assigned to: {project.assignedTo as string}</p>}
+                      {!!project.assignedTo && <p className="text-xs text-slate-400 mt-0.5">Assigned to: {project.assignedTo as string}</p>}
                     </div>
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${statusColors[project.status as string] || 'bg-slate-100 text-slate-600'}`}>{project.status as string}</span>
                   </div>
@@ -298,10 +298,10 @@ export default function ClientDetailPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-xs text-slate-400 flex-wrap">
-                    {project.deadline && <span>Due: {new Date(project.deadline as string).toLocaleDateString()}</span>}
-                    {project.demoUrl && <a href={project.demoUrl as string} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Demo ↗</a>}
-                    {project.liveUrl && <a href={project.liveUrl as string} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline">Live ↗</a>}
-                    {project.githubUrl && <a href={project.githubUrl as string} target="_blank" rel="noreferrer" className="text-purple-600 hover:underline">GitHub ↗</a>}
+                    {!!project.deadline && <span>Due: {new Date(project.deadline as string).toLocaleDateString()}</span>}
+                    {!!project.demoUrl && <a href={project.demoUrl as string} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Demo ↗</a>}
+                    {!!project.liveUrl && <a href={project.liveUrl as string} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline">Live ↗</a>}
+                    {!!project.githubUrl && <a href={project.githubUrl as string} target="_blank" rel="noreferrer" className="text-purple-600 hover:underline">GitHub ↗</a>}
                   </div>
                 </div>
               ))}
@@ -391,7 +391,7 @@ export default function ClientDetailPage() {
                   <div className="absolute -left-[1.625rem] w-3 h-3 rounded-full bg-blue-500 border-2 border-white" />
                   <div className="bg-white rounded-2xl border border-slate-100 p-4 ml-2">
                     <p className="text-sm font-bold text-slate-800">{log.title as string}</p>
-                    {log.message && <p className="text-xs text-slate-500 mt-0.5">{log.message as string}</p>}
+                    {!!log.message && <p className="text-xs text-slate-500 mt-0.5">{log.message as string}</p>}
                     <p className="text-[10px] text-slate-300 mt-1">{new Date(log.createdAt as string).toLocaleString()}</p>
                   </div>
                 </div>

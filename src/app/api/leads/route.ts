@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         { company: { contains: search, mode: 'insensitive' as const } },
       ],
     } : {}),
-    ...(status ? { status } : {}),
+    ...(status ? { status: status as any } : {}),
   };
 
   const [leads, total] = await Promise.all([
